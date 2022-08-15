@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import EventCard from "../../../components/EventCard";
@@ -14,26 +14,32 @@ export default function MyPastEvents() {
   const [currentTimestamp, setEventTimestamp] = useState(
     new Date().getTime().toString()
   );
+  const [mounted, setMounted] = useState(false);
   const { loading, error, data } = useQuery(GET_OWNERS_PAST_EVENTS, {
     variables: { eventOwner, currentTimestamp },
   });
 
-  const mapEvents = () =>
-    data.events.map(({ id, name, eventTimestamp, imageURL }) => (
-      <li key={id}>
-        <EventCard
-          id={id}
-          name={name}
-          eventTimestamp={eventTimestamp}
-          imageURL={imageURL}
-        />
-        <Link href={`/my-events/past/${id}`}>
-          <a className="text-indigo-800 text-sm truncate hover:underline">
-            Confirm attendees
-          </a>
-        </Link>
-      </li>
-    ));
+  const events = data?.events?.map(({ id, name, eventTimestamp, imageURL }) => (
+    <li key={id}>
+      <EventCard
+        id={id}
+        name={name}
+        eventTimestamp={eventTimestamp}
+        imageURL={imageURL}
+      />
+      <Link href={`/my-events/past/${id}`}>
+        <a className="text-indigo-800 text-sm truncate hover:underline">
+          Confirm attendees
+        </a>
+      </Link>
+    </li>
+  ));
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <Dashboard page="events" isUpcoming={false}>
@@ -41,7 +47,7 @@ export default function MyPastEvents() {
       {error && <p>`Error! ${error.message}`</p>}
 
       {data &&
-        (data.events.length ? (
+        (events.length ? (
           <ul
             role="list"
             className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8"
