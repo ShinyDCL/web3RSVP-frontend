@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 
-const UPCOMING_RSVPS = gql`
+const GET_RSVPS = gql`
   query Account($id: String) {
     account(id: $id) {
       id
@@ -16,4 +16,4 @@ const UPCOMING_RSVPS = gql`
   }
 `;
 
-export default UPCOMING_RSVPS;
+export default GET_RSVPS;

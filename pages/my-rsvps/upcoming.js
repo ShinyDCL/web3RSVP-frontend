@@ -4,14 +4,13 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import EventCard from "../../components/EventCard";
 import Dashboard from "../../components/Dashboard";
-import UPCOMING_RSVPS from "../../gql/getUpcomingRSVPs";
+import GET_RSVPS from "../../gql/getRSVPs";
 
 export default function MyUpcomingRSVPs() {
   const { data: account } = useAccount();
-
   const id = account?.address.toLowerCase() || "";
   const [currentTimestamp, setEventTimestamp] = useState(new Date().getTime());
-  const { loading, error, data } = useQuery(UPCOMING_RSVPS, {
+  const { loading, error, data } = useQuery(GET_RSVPS, {
     variables: { id },
   });
 
