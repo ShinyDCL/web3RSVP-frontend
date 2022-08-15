@@ -6,7 +6,7 @@ import { ethers } from "ethers";
 import connectContract from "../utils/connectContract";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
-import Alert from "../components/Alert";
+import Alerts from "../components/Alerts";
 
 export default function CreateEvent() {
   const { data: account } = useAccount();
@@ -114,30 +114,7 @@ export default function CreateEvent() {
         />
       </Head>
       <section className="relative py-12">
-        {loading && (
-          <Alert
-            alertType={"loading"}
-            alertBody={"Please wait"}
-            triggerAlert={true}
-            color={"white"}
-          />
-        )}
-        {success && (
-          <Alert
-            alertType={"success"}
-            alertBody={message}
-            triggerAlert={true}
-            color={"palegreen"}
-          />
-        )}
-        {success === false && (
-          <Alert
-            alertType={"failed"}
-            alertBody={message}
-            triggerAlert={true}
-            color={"palevioletred"}
-          />
-        )}
+        <Alerts success={success} message={message} loading={loading} />
         {!success && (
           <h1 className="text-3xl tracking-tight font-extrabold text-gray-900 sm:text-4xl md:text-5xl mb-4">
             Create your virtual event

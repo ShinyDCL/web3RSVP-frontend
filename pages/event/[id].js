@@ -1,5 +1,6 @@
+import { useState } from "react";
 import Head from "next/head";
-
+import Image from "next/image";
 import {
   EmojiHappyIcon,
   TicketIcon,
@@ -8,11 +9,15 @@ import {
 import client from "../../apollo-client";
 import GET_EVENTS from "../../gql/getEvents";
 import formatTimestamp from "../../utils/formatTimestamp";
-import Image from "next/image";
+import connectContract from "../../utils/connectContract";
+import RSVP from "../../components/RSVP";
+import Alerts from "../../components/Alerts";
 
 export default function Event({ event }) {
   const {
+    id,
     name,
+    deposit,
     eventTimestamp,
     description,
     totalRSVPs,
@@ -20,6 +25,38 @@ export default function Event({ event }) {
     imageURL,
     eventOwner,
   } = event;
+
+  const [success, setSuccess] = useState(null);
+  const [message, setMessage] = useState(null);
+  const [loading, setLoading] = useState(null);
+
+  const createNewRSVP = async () => {
+    try {
+      const rsvpContract = connectContract();
+      if (rsvpContract) {
+        const txn = await rsvpContract.createNewRSVP(id, {
+          value: deposit,
+          gasLimit: 300000,
+        });
+
+        setLoading(true);
+        console.log("Minting...", txn.hash);
+        await txn.wait();
+        console.log("Minted -- ", txn.hash);
+
+        setSuccess(true);
+        setLoading(false);
+        setMessage("Your RSVP has been created successfully.");
+      } else {
+        console.log("Error getting contract.");
+      }
+    } catch (error) {
+      setSuccess(false);
+      setMessage("Error!");
+      setLoading(false);
+      console.log(error);
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -29,6 +66,7 @@ export default function Event({ event }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <section className="relative py-12">
+        <Alerts success={success} message={message} loading={loading} />
         <h6 className="mb-2">{formatTimestamp(eventTimestamp)}</h6>
         <h1 className="text-3xl tracking-tight font-extrabold text-gray-900 sm:text-4xl md:text-5xl mb-6 lg:mb-12">
           {name}
@@ -43,6 +81,7 @@ export default function Event({ event }) {
             <p>{description}</p>
           </div>
           <div className="max-w-xs w-full flex flex-col gap-4 mb-6 lg:mb-0">
+            <RSVP event={event} createNewRSVP={createNewRSVP} />
             <div className="flex item-center">
               <UsersIcon className="w-6 mr-2" />
               <span className="truncate">
