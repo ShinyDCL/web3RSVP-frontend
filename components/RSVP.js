@@ -5,11 +5,13 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { LinkIcon } from "@heroicons/react/outline";
 
 export default function RSVP({ event, createNewRSVP }) {
-  const currentTimestamp = new Date().getTime();
-  const { eventTimestamp, link, deposit, rsvps } = event;
-
-  const { data: account } = useAccount();
+  const [currentTimestamp, setEventTimestamp] = useState(
+    new Date().getTime().toString()
+  );
   const [mounted, setMounted] = useState(false);
+  const { data: account } = useAccount();
+
+  const { eventTimestamp, link, deposit, rsvps } = event;
 
   useEffect(() => {
     setMounted(true);
